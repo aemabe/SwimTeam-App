@@ -10,7 +10,7 @@ shinyServer(function(input, output, session) {
   })
   
   df_example <- reactive({
-    if (input$Datasource == "2023 NCAA data") {
+    if (input$Datasource == "2023 NCAA Data") {
       if(input$sex == "Male"){
       swim11<-read.csv("swim11.csv")
       message(glue::glue('[{format(Sys.time(),"%F %T")}] >',
