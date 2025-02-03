@@ -12,7 +12,7 @@ shinyServer(function(input, output, session) {
   df_example <- reactive({
     if (input$Datasource == "2023 NCAA Data") {
       if(input$sex == "Male"){
-      swim11<-read.csv("swim11.csv")
+      swim11<-read.csv("data/swim11.csv")
       message(glue::glue('[{format(Sys.time(),"%F %T")}] >',
                          'Loading of the sample data'))
       return(swim11)} else {
@@ -44,6 +44,7 @@ shinyServer(function(input, output, session) {
     })
   
   filtered_data1 <- reactive({
+    req(df_example()) 
     if (!is.null(df_example())) {
       df_example_filtered <- subset(df_example(), Event == input$event)
       return(df_example_filtered)
@@ -85,6 +86,7 @@ shinyServer(function(input, output, session) {
   })
   
   create_plot1 <- function(data, y_var, variable_name) {
+    req(df_example())
     ggplot(data = data, aes(x=Lap.Number, y=!!sym(y_var), color = factor(Swimmer))) +
       geom_line() + geom_point(aes(shape = factor(Swimmer))) +
       scale_shape_manual(values=1:8) + labs(title = paste(input$sex, unique(data$Event), "-", variable_name),
@@ -96,6 +98,7 @@ shinyServer(function(input, output, session) {
   
   # Render combined plot
   output$graph_out1 <- renderPlot({
+    req(df_example())
     if (!is.null(filtered_data1())) {
       plot_list1 <- lapply(plot_numeric(), function(var) {
         create_plot1(filtered_data1(), var, var)
@@ -149,6 +152,7 @@ place_numeric <- reactive({
 })
   
   filtered_data <- reactive({
+    req(df_example())
     if (!is.null(df_example())) {
       df_example_filtered <- subset(df_example(), Event == input$event & Swimmer %in% place_numeric())
       return(df_example_filtered)
@@ -172,6 +176,7 @@ place_numeric <- reactive({
   
   # Render combined plot
   output$graph_out <- renderPlot({
+    req(df_example())
     if (!is.null(dataInput()) && !is.null(filtered_data())) {
       plot_list <- lapply(plot1_numeric(), function(var) {
         create_plot(dataInput(), filtered_data(), var, var)
